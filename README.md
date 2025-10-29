@@ -12,4 +12,4 @@ Launches full screen in Full HD (1920x1080) resolution with random seed.
 
 - Much faster compared to CPU calculation and same GL rendering.
 
-Video of app in work (1920x1080): [link](https://nulldog.xyz/images/cudaconway.mp4)
+Video of app in work (1920x1080): [link](https://olehsheremeta.com/images/cudaconway.mp4)
