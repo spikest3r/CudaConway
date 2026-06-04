@@ -1,0 +1,1 @@
+nvcc -gencode arch=compute_120,code=sm_120 glad.c shader.cpp kernel.cu main.cpp -o main -lglfw -lGL

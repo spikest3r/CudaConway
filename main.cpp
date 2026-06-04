@@ -1,3 +1,5 @@
+#include "kernel.cuh"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -5,21 +7,17 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <windows.h>
 
-#include <GL/glew.h>
-#include <glfw3.h>
 GLFWwindow* window;
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
 using namespace glm;
 
-#include "common/shader.hpp"
+#include "shader.hpp"
 
-#define WIDTH  4096
-#define HEIGHT 2160
+#define WIDTH  1920
+#define HEIGHT 1080
 
 std::string VertexShader = R"(
 #version 330 core
@@ -59,29 +57,6 @@ GLfloat quadVertices[] = {
 };
 
 int main() {
-	HMODULE hDll;
-	typedef void(*CudaRegisterTexture)(GLuint texture);
-	CudaRegisterTexture cudaRegisterTexture;
-	typedef void (*CudaUpdateTexture)(int w, int h);
-	CudaUpdateTexture cudaUpdateTexture;
-	typedef void (*CudaFillRandom)(int w, int h, int seed);
-	CudaFillRandom cudaFillRandom;
-	typedef void(*CudaAllocateBuffer)(int w, int h);
-	CudaAllocateBuffer cudaAllocateBuffer;
-	typedef void(*CudaFreeBuffer)();
-	CudaFreeBuffer cudaFreeBuffer;
-
-	hDll = LoadLibraryA("kernel.dll");
-	if (!hDll) {
-		MessageBoxA(NULL, "Failed to load kernel.dll", "Fatal error", MB_OK | MB_ICONERROR);
-		return -1;
-	}
-	cudaRegisterTexture = (CudaRegisterTexture)GetProcAddress(hDll, "cudaRegisterTexture");
-	cudaUpdateTexture = (CudaUpdateTexture)GetProcAddress(hDll, "cudaUpdateTexture");
-	cudaFillRandom = (CudaFillRandom)GetProcAddress(hDll, "cudaFillRandom");
-	cudaAllocateBuffer = (CudaAllocateBuffer)GetProcAddress(hDll, "cudaAllocateBuffer");
-	cudaFreeBuffer = (CudaFreeBuffer)GetProcAddress(hDll, "cudaFreeBuffer");
-
 	if (!glfwInit())
 		return -1;
 
@@ -113,8 +88,11 @@ int main() {
 	if (!window) return -1;
 	glfwMakeContextCurrent(window);
 
-	glewExperimental = true;
-	if (glewInit() != GLEW_OK) return -1;
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD v1\n";
+		glfwTerminate();
+        return -1;
+    }
 
 	// init texture
 	GLuint textureID;
@@ -128,7 +106,7 @@ int main() {
 
 	cudaAllocateBuffer(WIDTH, HEIGHT);
 	cudaRegisterTexture(textureID);
-	int seed = rand() % 9999999999999;
+	int seed = rand() % 200000;
 	cudaFillRandom(WIDTH, HEIGHT, seed);
 
 	// init vao & vbo
@@ -156,7 +134,6 @@ int main() {
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		cudaUpdateTexture(WIDTH, HEIGHT);
 

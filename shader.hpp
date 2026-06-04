@@ -1,4 +1,5 @@
 #include <string>
+#include "kernel.cuh"
 
 #ifndef SHADER_HPP
 #define SHADER_HPP

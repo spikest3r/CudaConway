@@ -9,8 +9,6 @@ using namespace std;
 #include <stdlib.h>
 #include <string.h>
 
-#include <GL/glew.h>
-
 #include "shader.hpp"
 
 GLuint LoadShaders(std::string VertexShaderCode, std::string FragmentShaderCode){
